@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>转盘游戏 - 帮我决定今天吃什么</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px dashed #ff7676;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(255, 107, 107, 0.2);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        h2 {
+            color: #ff9a76;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffeaa7;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: #fd9644;
+            margin: 20px 0 10px;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .visual-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 40px 0;
+            justify-content: center;
+        }
+        
+        .visual-item {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid #ffeaa7;
+            transition: transform 0.3s ease;
+        }
+        
+        .visual-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .visual-title {
+            font-size: 1.3rem;
+            color: #ff9a76;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .wheel-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin: 20px auto;
+        }
+        
+        .wheel {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+            box-shadow: 0 0 0 10px #ffd8a6, 0 0 20px rgba(0, 0, 0, 0.2);
+            background: conic-gradient(
+                #ff7676 0% 20%, 
+                #74b9ff 20% 40%, 
+                #55efc4 40% 60%, 
+                #ffeaa7 60% 80%, 
+                #a29bfe 80% 100%
+            );
+            transition: transform 3s cubic-bezier(0.2, 0.8, 0.3, 1);
+        }
+        
+        .wheel-center {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #2d3436;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .wheel-pointer {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            color: #ff6b6b;
+            font-size: 40px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .result-display {
+            background: #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d63031;
+            border: 2px dashed #fdcb6e;
+        }
+        
+        .food-item {
+            display: inline-block;
+            background: #ff9a76;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .cooking-method {
+            display: inline-block;
+            background: #74b9ff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .map-preview {
+            width: 100%;
+            height: 200px;
+            background: #dfe6e9;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #636e72;
+            font-style: italic;
+            border: 2px dashed #b2bec3;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(255, 154, 118, 0.1);
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px;
+            border: 2px solid #ff9a76;
+            font-weight: bold;
+            color: #ff9a76;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed #ff7676;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .visual-item {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .spinning {
+            animation: spin 2s linear infinite;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>解决人生三大难题</h1>
+            <p class="tagline">转盘游戏 - 早饭吃什么？午饭吃什么？晚饭吃什么？</p>
+        </header>
+        
+        <section>
+            <h2>项目概念</h2>
+            <p>本项目旨在开发一个有趣的转盘游戏，帮助用户解决每天面临的"吃什么"的难题。通过两个转盘分别选择食材和烹饪方法，系统会生成个性化的菜品推荐，并进一步提供附近的餐馆建议。</p>
+            
+            <div class="visual-section">
+                <div class="visual-item">
+                    <div class="visual-title">食材转盘</div>
+                    <div class="wheel-container">
+                        <div class="wheel" id="ingredient-wheel">
+                            <div class="wheel-center"></div>
+                            <div class="wheel-pointer">▲</div>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        当前选择: <span class="food-item">鸡肉</span>
+                    </div>
+                    <p>包含各种常见食材，用户可以反复抽取进行组合</p>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-title">做法转盘</div>
+                    <div class="wheel-container">
+                        <div class="wheel" id="method-wheel">
+                            <div class="wheel-center"></div>
+                            <div class="wheel-pointer">▲</div>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        当前选择: <span class="cooking-method">油炸</span>
+                    </div>
+                    <p>提供多种烹饪方法，与食材组合生成菜品</p>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>项目背景</h2>
+            <p>现代生活中，每天决定吃什么已经成为许多人的烦恼。面对众多选择，我们常常陷入决策困境。本项目通过游戏化的方式，将这一日常决策过程变得有趣而简单。</p>
+            <p>用户可以通过转盘随机选择，既解决了选择困难，又能尝试新的食物组合，发现意想不到的美味。</p>
+        </section>
+        
+        <section>
+            <h2>功能设计</h2>
+            <h3>核心功能</h3>
+            <ul>
+                <li><strong>食材转盘</strong>：包含鸡肉、牛肉、猪肉、米饭、土豆、蔬菜、海鲜等多种常见食材</li>
+                <li><strong>做法转盘</strong>：提供油炸、干煸、煮、蒸、烤、炒等多种烹饪方法</li>
+                <li><strong>智能推荐</strong>：根据食材和做法的组合，生成合理的菜品推荐</li>
+                <li><strong>餐馆定位</strong>：基于推荐菜品，在Google Maps等地图服务上推荐附近餐馆</li>
+            </ul>
+            
+            <h3>特色功能</h3>
+            <ul>
+                <li><strong>多次抽取</strong>：用户可以反复旋转转盘，直到找到满意的组合</li>
+                <li><strong>收藏功能</strong>：保存喜欢的菜品组合，方便下次直接选择</li>
+                <li><strong>个性化设置</strong>：根据用户饮食偏好（如素食、低卡路里等）调整推荐</li>
+                <li><strong>分享功能</strong>：将有趣的菜品组合分享到社交媒体</li>
+            </ul>
+            
+            <div class="visual-section">
+                <div class="visual-item">
+                    <div class="visual-title">菜品推荐示例</div>
+                    <div class="result-display" style="font-size: 1.5rem;">
+                        <span class="food-item">鸡肉</span> + 
+                        <span class="cooking-method">油炸</span> = 
+                        <strong>香酥鸡块</strong>
+                    </div>
+                    <p>系统会根据食材和做法的合理组合推荐具体菜品</p>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-title">附近餐馆推荐</div>
+                    <div class="map-preview">
+                        Google Maps 集成 - 显示附近提供"香酥鸡块"的餐馆
+                    </div>
+                    <p>基于推荐菜品，在地图上显示附近相关餐馆</p>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>技术实现</h2>
+            <p>项目将采用现代Web技术栈，确保跨平台兼容性和良好的用户体验。</p>
+            
+            <div class="tech-stack">
+                <div class="tech-item">HTML5/CSS3</div>
+                <div class="tech-item">JavaScript</div>
+                <div class="tech-item">Google Maps API</div>
+                <div class="tech-item">响应式设计</div>
+            </div>
+            
+            <h3>核心模块</h3>
+            <ul>
+                <li><strong>转盘动画</strong>：使用CSS3和JavaScript实现流畅的转盘旋转效果</li>
+                <li><strong>菜品数据库</strong>：存储食材、做法和菜品的对应关系</li>
+                <li><strong>位置服务</strong>：集成Google Maps API实现餐馆定位和推荐</li>
+                <li><strong>响应式UI</strong>：确保在手机、平板和桌面设备上都有良好体验</li>
+            </ul>
+        </section>
+        
+        <section>
+            <h2>用户界面设计</h2>
+            <p>界面将采用明亮、友好的色彩方案，营造轻松愉快的氛围。转盘设计直观易懂，结果展示清晰明了。</p>
+            
+            <div class="visual-section">
+                <div class="visual-item">
+                    <div class="visual-title">界面布局概念</div>
+                    <div style="background: #ffeaa7; height: 200px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 15px 0; color: #d63031; font-weight: bold;">
+                        转盘上方布局 - 简洁直观的操作界面
+                    </div>
+                    <p>主要操作区域集中在屏幕中央，方便用户使用</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>"帮我决定今天吃什么" - 转盘游戏项目提案</p>
+            <p>© 2023 美食决策助手 - 让每天的选择变得有趣</p>
+        </footer>
+    </div>
+
+    <script>
+        // 简单动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const wheels = document.querySelectorAll('.wheel');
+            
+            // 为转盘添加悬停效果
+            wheels.forEach(wheel => {
+                wheel.addEventListener('mouseenter', function() {
+                    this.classList.add('spinning');
+                });
+                
+                wheel.addEventListener('mouseleave', function() {
+                    this.classList.remove('spinning');
+                });
+            });
+            
+            // 为结果显示添加脉冲动画
+            const results = document.querySelectorAll('.result-display');
+            setInterval(() => {
+                results.forEach(result => {
+                    result.classList.toggle('pulse');
+                });
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
